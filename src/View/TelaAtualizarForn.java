@@ -1,13 +1,29 @@
-package Cashtab;
+package View;
+
 
 import javax.swing.JPanel;
 import java.awt.Color;
 import java.awt.GridLayout;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
+
 import java.awt.Font;
 import javax.swing.SwingConstants;
+
+import DAO.FornecedorDAO;
+import DAO.ProdutoDAO;
+import Model.Fornecedor;
+import Model.Produto;
+
 import javax.swing.JButton;
+import javax.swing.JFrame;
 import javax.swing.JTextField;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+import java.math.BigDecimal;
+import java.sql.Connection;
+import java.awt.event.FocusAdapter;
+import java.awt.event.FocusEvent;
 
 public class TelaAtualizarForn extends JPanel {
 
@@ -17,7 +33,9 @@ public class TelaAtualizarForn extends JPanel {
 	private JTextField textNomeForn;
 	private JTextField textEndForn;
 	private JTextField textCidade;
+	private JTextField txtEstado;
 	private JTextField textCodForn;
+	private JTextField txtEstado1;
 
 	/**
 	 * Create the panel.
@@ -35,6 +53,15 @@ public class TelaAtualizarForn extends JPanel {
 		add(lblAtualizarForn);
 		
 		JButton btnVoltar = new JButton("Voltar");
+		btnVoltar.addMouseListener(new MouseAdapter() {
+			@Override
+			public void mouseClicked(MouseEvent e) {
+				JFrame parentFrame = (JFrame) TelaAtualizarForn.this.getTopLevelAncestor();
+                if (parentFrame != null) {
+                    parentFrame.dispose();  // This will close the JFrame
+                }
+			}
+		});
 		btnVoltar.setForeground(new Color(47, 79, 79));
 		btnVoltar.setFont(new Font("OCR A Extended", Font.PLAIN, 20));
 		btnVoltar.setBackground(new Color(245, 245, 245));
@@ -42,6 +69,39 @@ public class TelaAtualizarForn extends JPanel {
 		add(btnVoltar);
 		
 		JButton btnAtualizar = new JButton("Salvar");
+		btnAtualizar.addMouseListener(new MouseAdapter() {
+			@Override
+			public void mouseClicked(MouseEvent e) {
+				FornecedorDAO fornecedorDAO = new FornecedorDAO(null);
+                Fornecedor fornecedor = new Fornecedor();
+
+                try {
+                	fornecedor.setIdFornecedor(Integer.parseInt(textCodForn.getText()));
+                	fornecedor.setNomeFornecedor(textNomeForn.getText());
+                	fornecedor.setTelefone(textTelForn.getText());
+                	fornecedor.setEndereco(textEndForn.getText());
+                	fornecedor.setCidade(textCidade.getText());
+                	fornecedor.setEstado(txtEstado1.getText());
+                	fornecedor.setEmailForn(textMailForn.getText());
+
+                	fornecedorDAO.update(fornecedor);
+                    JOptionPane.showMessageDialog(null, "Fornecedor atualizado com sucesso!");
+                    // Clear the text fields after saving
+                    textCodForn.setText("");
+                    textNomeForn.setText("");
+                    textTelForn.setText("");
+                    textEndForn.setText("");
+                    textCidade.setText("");
+                    txtEstado1.setText("");
+                    textMailForn.setText("");
+                    
+                    
+                } catch (Exception ex) {
+                    System.out.println("Erro ao formatar número: " + ex.getMessage());
+                    JOptionPane.showMessageDialog(null, "Erro ao atualizar fornecedor! " + ex.getMessage());
+                }
+			}
+		});
 		btnAtualizar.setForeground(new Color(47, 79, 79));
 		btnAtualizar.setFont(new Font("OCR A Extended", Font.PLAIN, 20));
 		btnAtualizar.setBackground(new Color(245, 245, 245));
@@ -50,7 +110,7 @@ public class TelaAtualizarForn extends JPanel {
 		
 		textTelForn = new JTextField();
 		textTelForn.setHorizontalAlignment(SwingConstants.LEFT);
-		textTelForn.setForeground(new Color(211, 211, 211));
+		textTelForn.setForeground(Color.BLACK);
 		textTelForn.setFont(new Font("OCR A Extended", Font.PLAIN, 20));
 		textTelForn.setColumns(10);
 		textTelForn.setBackground(Color.WHITE);
@@ -75,7 +135,7 @@ public class TelaAtualizarForn extends JPanel {
 		
 		textMailForn = new JTextField();
 		textMailForn.setHorizontalAlignment(SwingConstants.LEFT);
-		textMailForn.setForeground(new Color(211, 211, 211));
+		textMailForn.setForeground(Color.BLACK);
 		textMailForn.setFont(new Font("OCR A Extended", Font.PLAIN, 20));
 		textMailForn.setColumns(10);
 		textMailForn.setBackground(Color.WHITE);
@@ -84,7 +144,7 @@ public class TelaAtualizarForn extends JPanel {
 		
 		textNomeForn = new JTextField();
 		textNomeForn.setHorizontalAlignment(SwingConstants.LEFT);
-		textNomeForn.setForeground(new Color(211, 211, 211));
+		textNomeForn.setForeground(Color.BLACK);
 		textNomeForn.setFont(new Font("OCR A Extended", Font.PLAIN, 20));
 		textNomeForn.setColumns(10);
 		textNomeForn.setBackground(Color.WHITE);
@@ -109,21 +169,12 @@ public class TelaAtualizarForn extends JPanel {
 		
 		textEndForn = new JTextField();
 		textEndForn.setHorizontalAlignment(SwingConstants.LEFT);
-		textEndForn.setForeground(new Color(211, 211, 211));
+		textEndForn.setForeground(Color.BLACK);
 		textEndForn.setFont(new Font("OCR A Extended", Font.PLAIN, 20));
 		textEndForn.setColumns(10);
 		textEndForn.setBackground(Color.WHITE);
 		textEndForn.setBounds(253, 287, 402, 39);
 		add(textEndForn);
-		
-		JTextField textEstado = new JTextField();
-		textEstado.setHorizontalAlignment(SwingConstants.LEFT);
-		textEstado.setForeground(new Color(211, 211, 211));
-		textEstado.setFont(new Font("OCR A Extended", Font.PLAIN, 20));
-		textEstado.setColumns(10);
-		textEstado.setBackground(Color.WHITE);
-		textEstado.setBounds(553, 336, 102, 39);
-		add(textEstado);
 		
 		JLabel lblEstadoForn = new JLabel("Estado:");
 		lblEstadoForn.setHorizontalAlignment(SwingConstants.CENTER);
@@ -143,7 +194,7 @@ public class TelaAtualizarForn extends JPanel {
 		
 		textCidade = new JTextField();
 		textCidade.setHorizontalAlignment(SwingConstants.LEFT);
-		textCidade.setForeground(new Color(211, 211, 211));
+		textCidade.setForeground(Color.BLACK);
 		textCidade.setFont(new Font("OCR A Extended", Font.PLAIN, 20));
 		textCidade.setColumns(10);
 		textCidade.setBackground(Color.WHITE);
@@ -159,14 +210,58 @@ public class TelaAtualizarForn extends JPanel {
 		add(lblCodForn);
 		
 		textCodForn = new JTextField();
+		textCodForn.addFocusListener(new FocusAdapter() {
+			@Override
+			public void focusLost(FocusEvent e) {
+				try {
+                    int idForn = Integer.parseInt(textCodForn.getText());
+                    Connection conexao = null;
+					FornecedorDAO fornecedorDAO = new FornecedorDAO(conexao);
+                    Fornecedor fornecedor = fornecedorDAO.read(idForn);
+
+                    if (fornecedor != null) {
+                        textNomeForn.setText(fornecedor.getNomeFornecedor());
+                        textTelForn.setText(fornecedor.getTelefone());
+                        textEndForn.setText(fornecedor.getEndereco());
+                        textCidade.setText(fornecedor.getCidade());
+                        txtEstado1.setText(fornecedor.getEstado());
+                        textMailForn.setText(fornecedor.getEmailForn());
+                    } else {
+                    	JOptionPane.showMessageDialog(null, "Fornecedor não encontrado!", "Erro", JOptionPane.ERROR_MESSAGE);
+                    }
+                } catch (Exception ex) {
+                    ex.printStackTrace();
+                }
+			}
+		});
 		textCodForn.setHorizontalAlignment(SwingConstants.LEFT);
-		textCodForn.setForeground(new Color(211, 211, 211));
+		textCodForn.setForeground(Color.BLACK);
 		textCodForn.setFont(new Font("OCR A Extended", Font.PLAIN, 20));
 		textCodForn.setColumns(10);
 		textCodForn.setBackground(Color.WHITE);
 		textCodForn.setBounds(253, 88, 402, 39);
 		add(textCodForn);
+		
+		txtEstado1 = new JTextField();
+		txtEstado1.setHorizontalAlignment(SwingConstants.LEFT);
+		txtEstado1.setForeground(Color.BLACK);
+		txtEstado1.setFont(new Font("OCR A Extended", Font.PLAIN, 20));
+		txtEstado1.setColumns(10);
+		txtEstado1.setBackground(Color.WHITE);
+		txtEstado1.setBounds(552, 337, 103, 39);
+		add(txtEstado1);
+		
+		
 
 	}
-
+	
+	public void preencherCampos(String idForn, String nomeForn, String telefone, String endereco, String emailForn, String cidade, String estado) {
+	    textCodForn.setText(idForn);
+	    textNomeForn.setText(nomeForn);
+	    textTelForn.setText(telefone);
+	    textEndForn.setText(endereco);
+	    textCidade.setText(cidade); // Coloquei cidade aqui
+	    txtEstado1.setText(estado); // Coloquei estado aqui
+	    textMailForn.setText(emailForn); // Coloquei emailForn aqui
+	}
 }
