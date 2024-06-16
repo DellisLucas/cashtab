@@ -1,0 +1,59 @@
+CREATE DATABASE CASHTAB
+
+USE CASHTAB
+
+CREATE TABLE Usuario (
+IdUsuario INTEGER PRIMARY KEY IDENTITY(1, 1),
+NomeUsuario VARCHAR(100),
+CNPJ VARCHAR(20),
+NomeNegocio VARCHAR(100),
+MEI VARCHAR(20),
+Endereco VARCHAR(15),
+Cidade VARCHAR(50),
+Estado VARCHAR(50), 
+Email VARCHAR(50),
+Senha VARCHAR(50)
+)
+
+CREATE TABLE Fornecedor (
+IdFornecedor INTEGER PRIMARY KEY IDENTITY(1, 1),
+NomeFornecedor VARCHAR(100),
+Telefone VARCHAR(15),
+Endereco VARCHAR(50),
+Cidade VARCHAR(50),
+Estado VARCHAR(50)
+)
+
+CREATE TABLE Produto (
+IdProduto INTEGER PRIMARY KEY IDENTITY(1, 1),
+IdUsuario INTEGER,
+PreçoUnitário DECIMAL(10),
+DescProduto VARCHAR(100),
+FOREIGN KEY(IdUsuario) REFERENCES Usuário (IdUsuario)
+)
+
+CREATE TABLE Despesa (
+IdDespesa INTEGER PRIMARY KEY IDENTITY(1, 1),
+IdUsuario INTEGER,
+ValorPago DECIMAL(10),
+DescDespesa VARCHAR(100),
+DataFaturamento DATETIME,
+FOREIGN KEY(IdUsuario) REFERENCES Usuário (IdUsuario)
+)
+
+CREATE TABLE Receita (
+IdReceita INTEGER PRIMARY KEY IDENTITY(1, 1),
+IdUsuario INTEGER,
+ValorRecebido DECIMAL(10),
+DescReceita VARCHAR(100),
+DataRecibimento DATETIME,
+FOREIGN KEY(IdUsuario) REFERENCES Usuário (IdUsuario)
+)
+
+CREATE TABLE Fornece_Produto_Fornecedor (
+IdProdForn INTEGER PRIMARY KEY IDENTITY(1, 1),
+IdProduto INTEGER,
+IdFornecedor INTEGER,
+FOREIGN KEY(IdProduto) REFERENCES Produto (IdProduto),
+FOREIGN KEY(IdFornecedor) REFERENCES Fornecedor (IdFornecedor)
+)
