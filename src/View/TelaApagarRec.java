@@ -1,12 +1,28 @@
-package Cashtab;
+package View;
+
 
 import javax.swing.JPanel;
 import java.awt.Color;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
+
 import java.awt.Font;
 import javax.swing.SwingConstants;
+
+import DAO.ProdutoDAO;
+import DAO.ReceitaDAO;
+import Model.Produto;
+import Model.Receita;
+
 import javax.swing.JTextField;
 import javax.swing.JButton;
+import javax.swing.JFrame;
+
+import java.awt.event.FocusAdapter;
+import java.awt.event.FocusEvent;
+import java.sql.Connection;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 
 public class TelaApagarRec extends JPanel {
 
@@ -53,7 +69,7 @@ public class TelaApagarRec extends JPanel {
 		
 		textDescRec = new JTextField();
 		textDescRec.setHorizontalAlignment(SwingConstants.LEFT);
-		textDescRec.setForeground(new Color(211, 211, 211));
+		textDescRec.setForeground(new Color(0, 0, 0));
 		textDescRec.setFont(new Font("OCR A Extended", Font.PLAIN, 20));
 		textDescRec.setColumns(10);
 		textDescRec.setBackground(Color.WHITE);
@@ -62,7 +78,7 @@ public class TelaApagarRec extends JPanel {
 		
 		textDtRecebRec = new JTextField();
 		textDtRecebRec.setHorizontalAlignment(SwingConstants.LEFT);
-		textDtRecebRec.setForeground(new Color(211, 211, 211));
+		textDtRecebRec.setForeground(new Color(0, 0, 0));
 		textDtRecebRec.setFont(new Font("OCR A Extended", Font.PLAIN, 20));
 		textDtRecebRec.setColumns(10);
 		textDtRecebRec.setBackground(Color.WHITE);
@@ -71,7 +87,7 @@ public class TelaApagarRec extends JPanel {
 		
 		textVlrRecebRec = new JTextField();
 		textVlrRecebRec.setHorizontalAlignment(SwingConstants.LEFT);
-		textVlrRecebRec.setForeground(new Color(211, 211, 211));
+		textVlrRecebRec.setForeground(new Color(0, 0, 0));
 		textVlrRecebRec.setFont(new Font("OCR A Extended", Font.PLAIN, 20));
 		textVlrRecebRec.setColumns(10);
 		textVlrRecebRec.setBackground(Color.WHITE);
@@ -79,6 +95,26 @@ public class TelaApagarRec extends JPanel {
 		add(textVlrRecebRec);
 		
 		JButton btnApagar = new JButton("Apagar");
+		btnApagar.addMouseListener(new MouseAdapter() {
+			@Override
+			public void mouseClicked(MouseEvent e) {
+				ReceitaDAO receitaDAO = new ReceitaDAO(null);
+                Receita receita = new Receita();
+
+                try {
+                    receitaDAO.delete(Integer.parseInt(textCodRec.getText()));
+                    JOptionPane.showMessageDialog(null, "Receita deletada com sucesso!");
+                    // Clear the text fields after saving
+                    textCodRec.setText("");
+                    textDescRec.setText("");
+                    textVlrRecebRec.setText("");
+                    textDtRecebRec.setText("");
+                } catch (Exception ex) {
+                    System.out.println("Erro ao formatar número: " + ex.getMessage());
+                    JOptionPane.showMessageDialog(null, "Erro ao apagar receita! " + ex.getMessage());
+                }
+			}
+		});
 		btnApagar.setForeground(new Color(47, 79, 79));
 		btnApagar.setFont(new Font("OCR A Extended", Font.PLAIN, 20));
 		btnApagar.setBackground(new Color(245, 245, 245));
@@ -86,6 +122,15 @@ public class TelaApagarRec extends JPanel {
 		add(btnApagar);
 		
 		JButton btnVoltar = new JButton("Voltar");
+		btnVoltar.addMouseListener(new MouseAdapter() {
+			@Override
+			public void mouseClicked(MouseEvent e) {
+				JFrame parentFrame = (JFrame) TelaApagarRec.this.getTopLevelAncestor();
+                if (parentFrame != null) {
+                    parentFrame.dispose();  // Isso fechará o JFrame
+                }
+			}
+		});
 		btnVoltar.setForeground(new Color(47, 79, 79));
 		btnVoltar.setFont(new Font("OCR A Extended", Font.PLAIN, 20));
 		btnVoltar.setBackground(new Color(245, 245, 245));
@@ -100,8 +145,29 @@ public class TelaApagarRec extends JPanel {
 		add(lblCodRec);
 		
 		textCodRec = new JTextField();
+		textCodRec.addFocusListener(new FocusAdapter() {
+			@Override
+			public void focusLost(FocusEvent e) {
+				try {
+                    int idRec = Integer.parseInt(textCodRec.getText());
+                    Connection conexao = null;
+					ReceitaDAO receitaDAO = new ReceitaDAO(conexao);
+                    Receita receita = ReceitaDAO.read(idRec);
+
+                    if (receita != null) {
+                        textDescRec.setText(receita.getDescReceita());
+                        textDtRecebRec.setText(receita.getDataRecebimento().toString());
+                        textVlrRecebRec.setText(receita.getValorRecebido().toString());
+                    } else {
+                    	JOptionPane.showMessageDialog(null, "Produto não encontrado!", "Erro", JOptionPane.ERROR_MESSAGE);
+                    }
+                } catch (Exception ex) {
+                    ex.printStackTrace();
+                }
+			}
+		});
 		textCodRec.setHorizontalAlignment(SwingConstants.LEFT);
-		textCodRec.setForeground(new Color(211, 211, 211));
+		textCodRec.setForeground(new Color(0, 0, 0));
 		textCodRec.setFont(new Font("OCR A Extended", Font.PLAIN, 20));
 		textCodRec.setColumns(10);
 		textCodRec.setBackground(Color.WHITE);
@@ -109,5 +175,12 @@ public class TelaApagarRec extends JPanel {
 		add(textCodRec);
 
 	}
+	
+	public void preencherCampos(String id, String descricao, String dataRecebimento, String valorRecebido) {
+        textCodRec.setText(id);
+        textDescRec.setText(descricao);
+        textDtRecebRec.setText(dataRecebimento);
+        textVlrRecebRec.setText(valorRecebido);
+    }
 
 }
