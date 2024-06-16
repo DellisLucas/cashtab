@@ -205,7 +205,98 @@ public class TelaVisualizarRelat extends JPanel {
         return despesasReceitas;
     }
 
-   
+    private void gerarRelatorioPDF() {
+        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
+        String startDateString = dateFormat.format(startDateSpinner.getValue());
+        String endDateString = dateFormat.format(endDateSpinner.getValue());
+
+        if (!startDateString.isEmpty() && !endDateString.isEmpty()) {
+            try {
+                Date startDate = dateFormat.parse(startDateString);
+                Date endDate = dateFormat.parse(endDateString);
+                List<String> despesasReceitas = listarDespesasReceitas(startDate, endDate);
+
+                BigDecimal totalReceitas = BigDecimal.ZERO;
+                BigDecimal totalDespesas = BigDecimal.ZERO;
+                BigDecimal mediaDiariaReceitas = BigDecimal.ZERO;
+                BigDecimal mediaDiariaDespesas = BigDecimal.ZERO;
+
+                PdfWriter writer = new PdfWriter("relatorio.pdf");
+                PdfDocument pdfDoc = new PdfDocument(writer);
+                Document document = new Document(pdfDoc);
+
+                // Caminho absoluto para o logotipo
+                String caminhoLogo = "C:/Users/Dellis/eclipse-workspace/CASHTAB/logo.png";
+                ImageData imageData = ImageDataFactory.create(caminhoLogo);
+                Image image = new Image(imageData);
+                image.setWidth(50);
+                image.setHeight(50);
+                document.add(image);
+
+                SimpleDateFormat displayFormat = new SimpleDateFormat("dd/MM/yyyy");
+                document.add(new Paragraph("Relatório de Despesas e Receitas"));
+                document.add(new Paragraph("Período: " + displayFormat.format(startDate) + " a " + displayFormat.format(endDate)));
+                document.add(new Paragraph(" "));
+
+                int totalDias = 0;
+                Color red = new DeviceRgb(255, 0, 0);
+                Color green = new DeviceRgb(0, 255, 0);
+
+                for (String item : despesasReceitas) {
+                    Text text = new Text(item);
+                    if (item.startsWith("Despesa:")) {
+                        text.setFontColor(red);
+                        String valor = item.split(" \\| Valor: ")[1].split(" \\| Data: ")[0];
+                        valor = valor.replace(",", ".");
+                        try {
+                            BigDecimal valorDespesa = new BigDecimal(valor);
+                            totalDespesas = totalDespesas.add(valorDespesa);
+                        } catch (NumberFormatException e) {
+                            System.err.println("Erro ao converter valor de despesa: " + valor);
+                        }
+                    } else if (item.startsWith("Receita:")) {
+                        text.setFontColor(green);
+                        String valor = item.split(" \\| Valor: ")[1].split(" \\| Data: ")[0];
+                        valor = valor.replace(",", ".");
+                        try {
+                            BigDecimal valorReceita = new BigDecimal(valor);
+                            totalReceitas = totalReceitas.add(valorReceita);
+                        } catch (NumberFormatException e) {
+                            System.err.println("Erro ao converter valor de receita: " + valor);
+                        }
+                    }
+                    document.add(new Paragraph(text));
+                    totalDias++;
+                }
+
+                if (totalDias > 0) {
+                    mediaDiariaReceitas = totalReceitas.divide(BigDecimal.valueOf(totalDias), BigDecimal.ROUND_HALF_UP);
+                    mediaDiariaDespesas = totalDespesas.divide(BigDecimal.valueOf(totalDias), BigDecimal.ROUND_HALF_UP);
+                }
+
+                BigDecimal saldo = totalReceitas.subtract(totalDespesas);
+
+                document.add(new Paragraph(" "));
+                document.add(new Paragraph("Resumo do Período:"));
+                document.add(new Paragraph("Total de Receitas: " + totalReceitas));
+                document.add(new Paragraph("Total de Despesas: " + totalDespesas));
+                document.add(new Paragraph("Saldo: " + saldo));
+                document.add(new Paragraph("Média Diária de Receitas: " + mediaDiariaReceitas));
+                document.add(new Paragraph("Média Diária de Despesas: " + mediaDiariaDespesas));
+
+                String observacao = saldo.compareTo(BigDecimal.ZERO) >= 0 ? "O período resultou em lucro." : "O período resultou em prejuízo.";
+                document.add(new Paragraph("Observação: " + observacao));
+
+                document.close();
+                JOptionPane.showMessageDialog(this, "Relatório PDF gerado com sucesso.", "Sucesso", JOptionPane.INFORMATION_MESSAGE);
+            } catch (Exception ex) {
+                ex.printStackTrace();
+                JOptionPane.showMessageDialog(this, "Erro ao gerar relatório PDF.", "Erro", JOptionPane.ERROR_MESSAGE);
+            }
+        } else {
+            JOptionPane.showMessageDialog(this, "Por favor, insira ambas as datas de início e fim.", "Erro", JOptionPane.ERROR_MESSAGE);
+        }
+    }
 
 
     private void gerarGrafico() {
